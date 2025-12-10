@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RKB CAISSE</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>RKB CAISSE - GESTION DU JOUR</h2>
+
+        <div class="info-row">
+            <label>Date du jour :</label>
+            <span id="currentDate"></span>
+        </div>
+
+        <div class="info-row">
+            <label>Montant initial :</label>
+            <input type="number" id="initialAmount" placeholder="Entrez le montant initial du jour">
+            <button id="saveInitial">Démarrer</button>
+        </div>
+
+        <hr>
+
+        <h3>Nouvelle Sortie</h3>
+        <input type="text" id="description" placeholder="Description">
+        <input type="number" id="amount" placeholder="Montant">
+        <button id="add">Ajouter</button>
+
+        <h3>Sorties du jour</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Montant</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="outputList"></tbody>
+        </table>
+
+        <div class="totals">
+            <p>Total Sorties : <span id="outputTotal">0</span> CDF</p>
+            <p>Solde : <span id="balance">0</span> CDF</p>
+        </div>
+
+        <button id="resetDay" class="reset">Clôturer et Réinitialiser le Jour</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+// Fonction pour obtenir la date du jour au format AAAA-MM-JJ
+function getToday() {
+    const d = new Date();
+    return d.toISOString().split("T")[0];
+}
+
+// Initialisation locale pour chaque jour
+const today = getToday();
+const storageKey = "caisseData_" + today;
+
+// Charger les données du jour
+let tableData = JSON.parse(localStorage.getItem(storageKey)) || [];
+let soldeInitial = 0;
+let solde = 0;
+
+document.getElementById("date").value = today;
+
+// Mettre à jour le solde initial
+document.getElementById("soldeInitial").addEventListener("input", function () {
+    soldeInitial = parseFloat(this.value) || 0;
+    solde = soldeInitial;
+    document.getElementById("soldeActuel").innerText = solde.toFixed(2);
+    tableau.innerHTML = "";
+    tableData = [];
+    saveData();
+});
+
+// Références aux champs
+const libelleInput = document.getElementById("libelle");
+const quantiteInput = document.getElementById("quantite");
+const prixInput = document.getElementById("prix");
+const entreeInput = document.getElementById("entree");
+const sortieInput = document.getElementById("sortie");
+const tableau = document.getElementById("tableBody");
+
+// Ajouter une ligne
+document.getElementById("btnAjouter").addEventListener("click", ajouterLigne);
+function ajouterLigne() {
+    const libelle = libelleInput.value.trim();
+    const quantite = parseInt(quantiteInput.value) || 0;
+    const prix = parseFloat(prixInput.value) || 0;
+    const entree = parseFloat(entreeInput.value) || 0;
+    const sortie = parseFloat(sortieInput.value) || 0;
+
+    if (!libelle) return;
+
+    const total = quantite * prix;
+    solde += entree - sortie;
+
+    const ligne = {
+        date: today,
+        libelle,
+        quantite,
+        prix,
+        total,
+        entree,
+        sortie,
+        solde
+    };
+
+    tableData.push(ligne);
+    afficherTable();
+    saveData();
+
+    // Reset des champs
+    libelleInput.value = "";
+    quantiteInput.value = "";
+    prixInput.value = "";
+    entreeInput.value = "";
+    sortieInput.value = "";
+}
+
+// Afficher le tableau
+function afficherTable() {
+    tableau.innerHTML = "";
+    solde = soldeInitial;
+
+    tableData.forEach((item, index) => {
+        solde += item.entree - item.sortie;
+        item.solde = solde;
+
+        const row = `
+            <tr>
+                <td>${item.date}</td>
+                <td>${item.libelle}</td>
+                <td>${item.quantite}</td>
+                <td>USD ${item.prix.toFixed(2)}</td>
+                <td>USD ${item.total.toFixed(2)}</td>
+                <td>${item.entree ? "USD " + item.entree.toFixed(2) : "-"}</td>
+                <td>${item.sortie ? "USD " + item.sortie.toFixed(2) : "-"}</td>
+                <td>USD ${item.solde.toFixed(2)}</td>
+                <td>
+                    <button onclick="supprimer(${index})">🗑️</button>
+                </td>
+            </tr>
+        `;
+        tableau.innerHTML += row;
+    });
+
+    document.getElementById("soldeActuel").innerText = solde.toFixed(2);
+}
+
+// Sauvegarder
+function saveData() {
+    localStorage.setItem(storageKey, JSON.stringify(tableData));
+}
+
+// Supprimer une ligne
+function supprimer(index) {
+    tableData.splice(index, 1);
+    afficherTable();
+    saveData();
+}
+
+// Charger les infos au démarrage
+afficherTable();
+document.getElementById("soldeActuel").innerText = solde.toFixed(2);
+
+body {
+    font-family: Arial, sans-serif;
+    background: #eef1f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    max-width: 800px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+h2, h3 {
+    text-align: center;
+    color: #333;
+}
+
+.info-row {
+    margin: 12px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+input[type="number"],
+input[type="text"] {
+    width: 58%;
+    padding: 8px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+}
+
+button {
+    background: #0077cc;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #005eaa;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table th, table td {
+    border: 1px solid #aaa;
+    padding: 6px;
+    text-align: center;
+}
+
+.reset {
+    width: 100%;
+    margin-top: 20px;
+    background: #d9534f;
+}
+
+.reset:hover {
+    background: #b52a27;
+}
+
+.totals {
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+function ajouterLigne() {
+    const dateActuelle = new Date().toLocaleDateString('fr-FR'); // <-- Date dynamique ici
+
+    const desc = document.getElementById("description").value;
+    const prixU = parseFloat(document.getElementById("prixU").value);
+    const quantite = parseFloat(document.getElementById("quantite").value);
+
+    if (!desc || isNaN(prixU) || isNaN(quantite)) {
+        alert("Veuillez remplir tous les champs !");
+        return;
+    }
+
+    const prixTotal = prixU * quantite;
+
+    const tbody = document.querySelector("#table-body");
+    const newRow = document.createElement("tr");
+
+    newRow.innerHTML = `
+        <td>${dateActuelle}</td>
+        <td>${desc}</td>
+        <td>${quantite}</td>
+        <td>USD ${prixU.toFixed(2)}</td>
+        <td>USD ${prixTotal.toFixed(2)}</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td></td>
+    `;
+
+    tbody.appendChild(newRow);
+}
+
+
+const CACHE_NAME = 'rkb-cache-v1';
+const FILES_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/styles.css',
+  '/app.js',
+  '/manifest.json'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(resp => {
+      return resp || fetch(event.request).catch(()=> caches.match('/index.html'));
+    })
+  );
+});
+
+{
+  "name": "Livre de caisse RKB",
+  "short_name": "RKB Caisse",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d6efd",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
