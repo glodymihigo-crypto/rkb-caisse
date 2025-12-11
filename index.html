@@ -8,17 +8,24 @@
 </head>
 <body>
 
-<h1>📘 RKB Caisse</h1>
-    <button onclick="exportPDF()" class="pdf-btn">📄 Exporter en PDF</button>
+<script>
+// Redirection si pas connecté
+if (localStorage.getItem("rkb_logged") !== "yes") {
+    window.location.href = "login.html";
+}
+</script>
 
+<button onclick="logout()" class="logout-btn">Déconnexion</button>
+
+<h1>📘 RKB Caisse</h1>
 
 <div class="form">
     <input type="date" id="date">
     <input type="text" id="libele" placeholder="Libellé">
     <input type="number" id="quantite" placeholder="Quantité">
     <input type="number" id="prix" placeholder="Prix unitaire">
-    <input type="number" id="sortie" placeholder="Sortie (optionnel)">
-    <input type="number" id="venteJour" placeholder="Vente jour (optionnel)">
+    <input type="number" id="sortie" placeholder="Sortie">
+    <input type="number" id="venteJour" placeholder="Vente jour">
     <input type="text" id="obs" placeholder="Observation">
     <button onclick="ajouterLigne()">Ajouter</button>
 </div>
@@ -42,6 +49,14 @@
 </table>
 
 <script src="script.js"></script>
+
+<script>
+function logout() {
+    localStorage.removeItem("rkb_logged");
+    window.location.href = "login.html";
+}
+</script>
+
 </body>
 </html>
 
