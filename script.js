@@ -76,6 +76,35 @@ function ajouterLigne() {
 // Supprimer une ligne
 function supprimer(index) {
     const data = getData();
+    function exportPDF() {
+    const rows = document.querySelectorAll("#table-body tr");
+    if (rows.length === 0) {
+        alert("Aucune donnée à exporter !");
+        return;
+    }
+
+    let contenu = "RKB CAISSE - Rapport Journalier\n\n";
+    contenu += "Date\tLibellé\tQté\tPrix U\tTotal\tSortie\tSolde\tVente Jour\tObs\n";
+    contenu += "----------------------------------------------------------------------\n";
+
+    rows.forEach(row => {
+        const cols = row.querySelectorAll("td");
+        const ligne = Array.from(cols).map(td => td.innerText).join("\t");
+        contenu += ligne + "\n";
+    });
+
+    // Création du fichier PDF simple (texte)
+    const blob = new Blob([contenu], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "rapport_rkb_caisse.pdf";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
     data.splice(index, 1);
     saveData(data);
     afficherTable();
