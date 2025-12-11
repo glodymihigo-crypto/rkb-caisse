@@ -1,51 +1,16 @@
-import express from "express";
-import cors from "cors";
+.login-box {
+    width: 300px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #0002;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors({ origin: "*" }));
-app.use(express.json());
-
-let operations = [];
-let nextId = 1;
-
-app.get("/", (req, res) => {
-  res.json({ message: "Backend RKB Caisse opérationnel 🔥" });
-});
-
-app.get("/operations", (req, res) => {
-  res.json(operations);
-});
-
-app.post("/operations", (req, res) => {
-  const { date, libele, quantite, prix, total, sortie, vente_jour, obs } = req.body;
-
-  const solde = total - sortie;
-
-  const newOp = {
-    id: nextId++,
-    date,
-    libele,
-    quantite,
-    prix,
-    total,
-    sortie,
-    solde,
-    vente_jour,
-    obs
-  };
-
-  operations.push(newOp);
-  res.json(newOp);
-});
-
-app.delete("/operations/:id", (req, res) => {
-  const id = Number(req.params.id);
-  operations = operations.filter(op => op.id !== id);
-  res.json({ message: "Opération supprimée" });
-});
-
-app.listen(PORT, () => {
-  console.log(`Serveur RKB Caisse démarré sur le port ${PORT}`);
-});
+.logout {
+    margin-bottom: 20px;
+    background: red;
+}
