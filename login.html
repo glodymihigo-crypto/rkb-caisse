@@ -3,31 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - RKB Caisse</title>
+    <title>Connexion Admin | RKB Caisse</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>🔐 Connexion Admin</h1>
+<h1>🔐 Connexion Administrateur</h1>
 
 <div class="login-box">
     <input type="password" id="password" placeholder="Mot de passe admin">
     <button onclick="login()">Se connecter</button>
-    <p id="error" style="color:red;"></p>
+    <p id="error" style="color:red; display:none;">❌ Mot de passe incorrect</p>
 </div>
 
 <script>
-const ADMIN_PASSWORD = "123456"; // CHANGE TON MOT DE PASSE ICI
+const ADMIN_PASSWORD = "admin2025";
 
 function login() {
-    const pw = document.getElementById("password").value;
+    const pwd = document.getElementById("password").value;
 
-    if (pw === ADMIN_PASSWORD) {
-        localStorage.setItem("rkb_logged", "yes");
+    if (pwd === ADMIN_PASSWORD) {
+        localStorage.setItem("logged", "yes");
         window.location.href = "index.html";
     } else {
-        document.getElementById("error").textContent = "Mot de passe incorrect ❌";
+        document.getElementById("error").style.display = "block";
     }
+}
+
+// si déjà connecté → redirection directe
+if (localStorage.getItem("logged") === "yes") {
+    window.location.href = "index.html";
 }
 </script>
 
