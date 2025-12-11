@@ -1,68 +1,51 @@
-body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    background: #f5f5f5;
-}
+import express from "express";
+import cors from "cors";
 
-h1 {
-    text-align: center;
-}
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-.form {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-}
+app.use(cors({ origin: "*" }));
+app.use(express.json());
 
-input, button {
-    padding: 10px;
-}
+let operations = [];
+let nextId = 1;
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-}
+app.get("/", (req, res) => {
+  res.json({ message: "Backend RKB Caisse opérationnel 🔥" });
+});
 
-th, td {
-    padding: 8px;
-    border: 1px solid #ccc;
-    text-align: center;
-}
+app.get("/operations", (req, res) => {
+  res.json(operations);
+});
 
-button {
-    background: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
+app.post("/operations", (req, res) => {
+  const { date, libele, quantite, prix, total, sortie, vente_jour, obs } = req.body;
 
-button:hover {
-    background: #0056b3;
-}
+  const solde = total - sortie;
 
-/* LOGIN PAGE */
-.login-box {
-    width: 300px;
-    margin: 50px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px #0003;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+  const newOp = {
+    id: nextId++,
+    date,
+    libele,
+    quantite,
+    prix,
+    total,
+    sortie,
+    solde,
+    vente_jour,
+    obs
+  };
 
-.logout-btn {
-    float: right;
-    margin-bottom: 10px;
-    background: #dc3545;
-}
+  operations.push(newOp);
+  res.json(newOp);
+});
 
-.logout-btn:hover {
-    background: #b52a36;
-}
+app.delete("/operations/:id", (req, res) => {
+  const id = Number(req.params.id);
+  operations = operations.filter(op => op.id !== id);
+  res.json({ message: "Opération supprimée" });
+});
 
-
+app.listen(PORT, () => {
+  console.log(`Serveur RKB Caisse démarré sur le port ${PORT}`);
+});
