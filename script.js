@@ -1,21 +1,31 @@
-const API_URL = "https://rkb-caisse-backend.onrender.com";
-
+// Charge la date automatiquement
 window.onload = () => {
     document.getElementById("date").value = new Date().toISOString().split("T")[0];
-    chargerDonnees();
+    afficherTable();
 };
 
-async function chargerDonnees() {
-    const res = await fetch(`${API_URL}/operations`);
-    const data = await res.json();
-    afficherTable(data);
+// Récupérer les données depuis localStorage
+function getData() {
+    return JSON.parse(localStorage.getItem("operations") || "[]");
 }
 
-function afficherTable(data) {
+// Sauvegarder dans localStorage
+function saveData(data) {
+    localStorage.setItem("operations", JSON.stringify(data));
+}
+
+// Afficher tableau
+function afficherTable() {
     const body = document.getElementById("table-body");
+    const data = getData();
     body.innerHTML = "";
 
-    data.forEach(op => {
+    let solde = 0;
+
+    data.forEach((op, index) => {
+        solde += Number(op.total) - Number(op.sortie);
+        op.solde = solde;
+
         body.innerHTML += `
             <tr>
                 <td>${op.date}</td>
@@ -27,13 +37,14 @@ function afficherTable(data) {
                 <td>${op.solde}</td>
                 <td>${op.vente_jour}</td>
                 <td>${op.obs}</td>
-                <td><button onclick="supprimer(${op.id})">🗑️</button></td>
+                <td><button onclick="supprimer(${index})">🗑️</button></td>
             </tr>
         `;
     });
 }
 
-async function ajouterLigne() {
+// Ajouter une ligne
+function ajouterLigne() {
     const date = document.getElementById("date").value;
     const libele = document.getElementById("libele").value;
     const quantite = Number(document.getElementById("quantite").value);
@@ -44,16 +55,29 @@ async function ajouterLigne() {
 
     const total = quantite * prix;
 
-    await fetch(`${API_URL}/operations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date, libele, quantite, prix, total, sortie, vente_jour: venteJour, obs })
-    });
+    const data = getData();
+    data.push({ date, libele, quantite, prix, total, sortie, vente_jour: venteJour, obs });
 
-    chargerDonnees();
+    saveData(data);
+    afficherTable();
+
+    // Reset des champs
+    document.getElementById("libele").value = "";
+    document.getElementById("quantite").value = "";
+    document.getElementById("prix").value = "";
+    document.getElementById("sortie").value = "";
+    document.getElementById("venteJour").value = "";
+    document.getElementById("obs").value = "";
+
+    // Date automatique du jour
+    document.getElementById("date").value = new Date().toISOString().split("T")[0];
 }
 
-async function supprimer(id) {
-    await fetch(`${API_URL}/operations/${id}`, { method: "DELETE" });
-    chargerDonnees();
+// Supprimer une ligne
+function supprimer(index) {
+    const data = getData();
+    data.splice(index, 1);
+    saveData(data);
+    afficherTable();
 }
+
