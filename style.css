@@ -41,3 +41,17 @@ button {
 button:hover {
     background: #0056b3;
 }
+.pdf-btn {
+    background: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.pdf-btn:hover {
+    background: #1e7e34;
+}
+
