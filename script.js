@@ -47,10 +47,7 @@ async function ajouterLigne() {
     await fetch(`${API_URL}/operations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            date, libele, quantite, prix, total,
-            sortie, vente_jour: venteJour, obs
-        })
+        body: JSON.stringify({ date, libele, quantite, prix, total, sortie, vente_jour: venteJour, obs })
     });
 
     chargerDonnees();
@@ -59,6 +56,12 @@ async function ajouterLigne() {
 async function supprimer(id) {
     await fetch(`${API_URL}/operations/${id}`, { method: "DELETE" });
     chargerDonnees();
+}
+
+// 🔐 Déconnexion
+function logout() {
+    localStorage.removeItem("logged");
+    window.location.href = "login.html";
 }
 
 
