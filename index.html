@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RKB Caisse</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>📘 RKB Caisse</h1>
+
+<div class="form">
+    <input type="date" id="date">
+    <input type="text" id="libele" placeholder="Libellé">
+    <input type="number" id="quantite" placeholder="Quantité">
+    <input type="number" id="prix" placeholder="Prix unitaire">
+    <input type="number" id="sortie" placeholder="Sortie (optionnel)">
+    <input type="number" id="venteJour" placeholder="Vente jour (optionnel)">
+    <input type="text" id="obs" placeholder="Observation">
+    <button onclick="ajouterLigne()">Ajouter</button>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Libellé</th>
+            <th>Qté</th>
+            <th>Prix U</th>
+            <th>Total</th>
+            <th>Sortie</th>
+            <th>Solde</th>
+            <th>Vente jour</th>
+            <th>Obs</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+</table>
+
+<script src="script.js"></script>
+</body>
+</html>
